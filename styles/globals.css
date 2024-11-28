@@ -1,12 +1,54 @@
-/* styles/globals.css */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  h1 {
-    color: #333;
-  }
-  
+/* pages/styles/globals.css */
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 10px;
+  background-color: #fff;
+  padding: 20px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+h2 {
+  font-size: 28px;
+  color: #007bff;
+}
+
+.form-group input,
+.form-group select {
+  border-radius: 8px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.age-text {
+  font-size: 14px;
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}

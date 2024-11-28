@@ -1,66 +1,68 @@
-import React, { useState } from 'react';
+/* pages/index.js */
 
-const Register = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');  // ใช้เพื่อแสดงข้อความ
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import liff from "@line/liff"; // ใช้ LINE LIFF SDK
+import "bootstrap/dist/css/bootstrap.min.css"; // เพิ่มการใช้งาน Bootstrap
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    
-    try {
-      // ส่งข้อมูลไปยัง API
-      const response = await fetch('/api/registerCustomer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, phone, email }),
-      });
+const Index = () => {
+  const [userProfile, setUserProfile] = useState(null); // เก็บข้อมูลโปรไฟล์ผู้ใช้
+  const [loading, setLoading] = useState(true); // สถานะการโหลด
+  const router = useRouter();
 
-      // รับผลลัพธ์จาก API
-      const result = await response.json();
-      
-      if (response.ok) {
-        setMessage(result.message);  // แสดงข้อความเมื่อสำเร็จ
-      } else {
-        setMessage(`Error: ${result.message}`);  // แสดงข้อความเมื่อเกิดข้อผิดพลาด
+  useEffect(() => {
+    const initializeLiff = async () => {
+      try {
+        // เริ่มต้น LIFF SDK
+        await liff.init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID });
+
+        // ตรวจสอบสถานะการล็อกอิน
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          setUserProfile(profile); // เก็บข้อมูลโปรไฟล์ผู้ใช้
+
+          // เมื่อผู้ใช้ล็อกอินแล้ว ให้เปลี่ยนเส้นทางไปหน้า test.js
+          router.push("/register");
+        } else {
+          // ถ้าไม่ได้ล็อกอิน ให้ทำการขออนุญาต
+          liff.login(); // จะเปิดหน้าต่างให้ผู้ใช้ล็อกอิน
+        }
+      } catch (err) {
+        console.error("LIFF Initialization Error:", err);
+      } finally {
+        setLoading(false); // เมื่อโหลดเสร็จ จะตั้งค่า loading เป็น false
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setMessage('Something went wrong');
-    }
-  };
+    };
+
+    initializeLiff();
+  }, []);
 
   return (
-    <div>
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button type="submit">Register</button>
-      </form>
-
-      {/* แสดงข้อความตอบสนองจาก API */}
-      {message && <p>{message}</p>}
+    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100">
+      <div className="text-center">
+        <h1 className="mb-4">กำลังโหลดข้อมูล...</h1>
+        {loading ? (
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden"></span>
+          </div>
+        ) : userProfile ? (
+          <div>
+            <p>ระบบกำลังนำคุณไปยังหน้าสมัครสมาชิก กรุณารอสักครู่</p>
+          </div>
+        ) : (
+          <div>
+            <p className="text-danger">
+              เกิดข้อผิดพลาดในการเชื่อมต่อกับ LINE <br />
+              หรือไม่ได้รับอนุญาตให้ใช้ Application นี้!
+            </p>
+            <div className="spinner-border text-danger" role="status">
+              <span className="visually-hidden"></span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Register;
+export default Index;

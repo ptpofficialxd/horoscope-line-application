@@ -1,8 +1,10 @@
-// pages/_app.js
-import '../styles/globals.css'
+/* pages/_app.js */
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/globals.css";
+
+function HoroscopeLineApplication({ Component, pageProps }) {
+  return <Component {...pageProps} />;
 }
 
-export default MyApp;
+export default HoroscopeLineApplication;

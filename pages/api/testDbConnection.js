@@ -1,13 +1,16 @@
-// pages/api/test.js
-import { connectToDatabase } from '../../lib/mongodb';
+// pages/api/testDbconnection.js
+import { connectToDatabase } from "../../lib/mongodb";
 
 export default async function handler(req, res) {
   try {
-    const db = await connectToDatabase();
-    const collection = db.collection('bookings');
-    const bookings = await collection.find({}).toArray();
-    res.status(200).json({ bookings });
+    // เชื่อมต่อกับฐานข้อมูล MongoDB
+    const { db } = await connectToDatabase();
+
+    // ดึงข้อมูลจาก collection "users"
+    const users = await db.collection('users').find({}).toArray(); // ดึงข้อมูลในรูปแบบ array
+
+    res.status(200).json({ users }); // ส่งผลลัพธ์กลับไปในรูปแบบ JSON
   } catch (error) {
-    res.status(500).json({ message: 'Error connecting to the database', error });
+    res.status(500).json({ message: "มีข้อผิดพลาดในการเชื่อมต่อกับฐานข้อมูล", error });
   }
 }
