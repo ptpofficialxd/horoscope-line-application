@@ -1,4 +1,4 @@
-/* pages/index.js xdxd*/
+/* pages/index.js */
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
