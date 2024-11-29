@@ -107,7 +107,7 @@ const AstrologerRegistration = () => {
         console.error("เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:", errorData.message);
       }
 
-      router.push("/success"); // ไปหน้า Success
+      router.push("/profile"); // ไปหน้า profile
     } else {
       const errorData = await response.json();
       alert(`เกิดข้อผิดพลาด: ${errorData.message || "ไม่สามารถสมัครสมาชิกได้"}`);

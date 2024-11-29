@@ -91,7 +91,7 @@ const CustomerRegistration = () => {
         );
       }
 
-      router.push("/success"); // ไปหน้า Success
+      router.push("/profile"); // ไปหน้า profile
     } else {
       const errorData = await response.json();
       alert(
