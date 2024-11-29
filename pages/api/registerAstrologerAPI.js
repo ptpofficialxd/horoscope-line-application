@@ -1,6 +1,7 @@
 /* pages/api/registerAstrologerAPI.js */
 
 import { connectToDatabase } from "../../lib/mongodb";
+import { setCookie } from "cookies-next"; // นำเข้า setCookie
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -10,8 +11,8 @@ export default async function handler(req, res) {
       lastName,
       phone,
       birthdate,
-      gender,
       age,
+      gender,
       selfDescription,
       branch,
     } = req.body;
@@ -35,21 +36,32 @@ export default async function handler(req, res) {
           timeZone: "Asia/Bangkok",
         });
       };
+      // เพิ่มข้อมูลลงฐานข้อมูล
       await db.collection("users").insertOne({
         lineId,
         firstName,
         lastName,
         phone,
         birthdate,
-        gender,
         age,
+        gender,
         selfDescription,
         branch,
-        userType: "astrologer",
+        userType: "astrologer", // ระบุประเภทเป็น astrologer
         createdAt: formatDateTime(new Date()),
       });
+
+      // ตั้งค่าคุกกี้เพื่อเก็บ Line ID ของ Astrologer
+      setCookie('lineId', lineId, { 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 60 * 60 * 24 * 7, // คุกกี้หมดอายุใน 7 วัน
+        path: '/', // ใช้ได้ทุกเส้นทาง
+      });
+
       res.status(201).json({ message: "Astrologer registered successfully" });
     } catch (error) {
+      console.error("Database error:", error);
       res.status(500).json({ message: "Database error", error });
     }
   } else {
