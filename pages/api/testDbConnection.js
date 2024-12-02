@@ -1,15 +1,13 @@
-// pages/api/testDbconnection.js
 import { connectToDatabase } from "../../lib/mongodb";
+import User from '../../models/user';
 
 export default async function handler(req, res) {
   try {
-    // เชื่อมต่อกับฐานข้อมูล MongoDB
-    const { db } = await connectToDatabase();
+    await connectToDatabase();
 
-    // ดึงข้อมูลจาก collection "users"
-    const users = await db.collection('users').find({}).toArray(); // ดึงข้อมูลในรูปแบบ array
+    const users = await User.find({}).lean(); // Use lean() for better performance if you don't need Mongoose documents
 
-    res.status(200).json({ users }); // ส่งผลลัพธ์กลับไปในรูปแบบ JSON
+    res.status(200).json({ users });
   } catch (error) {
     res.status(500).json({ message: "มีข้อผิดพลาดในการเชื่อมต่อกับฐานข้อมูล", error });
   }

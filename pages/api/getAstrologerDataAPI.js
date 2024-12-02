@@ -1,11 +1,10 @@
-// pages/api/getAstrologerDataAPI.js
-
 import { connectToDatabase } from "../../lib/mongodb";
-import { getCookie } from "cookies-next"; // นำเข้า getCookie
+import User from '../../models/user';
+import { getCookie } from "cookies-next";
+import moment from "moment";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    // อ่านคุกกี้ lineId จาก request
     const lineId = getCookie('lineId', { req, res });
 
     if (!lineId) {
@@ -13,16 +12,21 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { db } = await connectToDatabase();
+      await connectToDatabase();
 
-      // ค้นหาผู้ใช้จากฐานข้อมูลที่มี userType เป็น 'astrologer'
-      const astrologer = await db.collection("users").findOne({ lineId, userType: "astrologer" });
+      const astrologer = await User.findOne({ lineId, userType: "astrologer" });
 
       if (!astrologer) {
         return res.status(404).json({ message: "Astrologer data not found" });
       }
 
-      res.status(200).json({ astrologer });
+      const formattedAstrologer = {
+        ...astrologer.toObject(),
+        birthdate: moment(astrologer.birthdate).format('DD/MM/YYYY'),
+        createdAt: moment(astrologer.createdAt).format('DD/MM/YYYY HH:MM:SS'),
+      };
+
+      res.status(200).json({ astrologer: formattedAstrologer });
     } catch (error) {
       console.error("Error fetching astrologer:", error);
       res.status(500).json({ message: "Internal server error" });

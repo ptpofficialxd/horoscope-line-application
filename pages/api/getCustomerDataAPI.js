@@ -1,11 +1,10 @@
-// pages/api/getCustomerDataAPI.js
-
 import { connectToDatabase } from "../../lib/mongodb";
-import { getCookie } from "cookies-next"; // นำเข้า getCookie
+import User from '../../models/user';
+import { getCookie } from "cookies-next";
+import moment from "moment";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    // อ่านคุกกี้ lineId จาก request
     const lineId = getCookie('lineId', { req, res });
 
     if (!lineId) {
@@ -13,16 +12,21 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { db } = await connectToDatabase();
+      await connectToDatabase();
 
-      // ค้นหาผู้ใช้จากฐานข้อมูลที่มี userType เป็น 'customer'
-      const customer = await db.collection("users").findOne({ lineId, userType: "customer" });
+      const customer = await User.findOne({ lineId, userType: "customer" });
 
       if (!customer) {
         return res.status(404).json({ message: "Customer data not found" });
       }
 
-      res.status(200).json({ customer });
+      const formattedCustomer = {
+        ...customer.toObject(),
+        birthdate: moment(customer.birthdate).format('DD/MM/YYYY'),
+        createdAt: moment(customer.createdAt).format('DD/MM/YYYY HH:MM:SS'),
+      };
+
+      res.status(200).json({ customer: formattedCustomer });
     } catch (error) {
       console.error("Error fetching customer:", error);
       res.status(500).json({ message: "Internal server error" });

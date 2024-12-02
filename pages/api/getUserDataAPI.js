@@ -1,11 +1,10 @@
-/* pages/api/getUserDataAPI.js */
-
 import { connectToDatabase } from "../../lib/mongodb";
-import { getCookie } from "cookies-next"; // นำเข้า getCookie
+import User from '../../models/user';
+import { getCookie } from "cookies-next";
+import moment from "moment";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    // อ่านคุกกี้ lineId จาก request
     const lineId = getCookie('lineId', { req, res });
 
     if (!lineId) {
@@ -13,20 +12,24 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { db } = await connectToDatabase();
+      await connectToDatabase();
 
-      // ค้นหาผู้ใช้จากฐานข้อมูลที่มี lineId
-      const user = await db.collection("users").findOne({ lineId });
+      const user = await User.findOne({ lineId });
 
       if (!user) {
         return res.status(404).json({ message: "User data not found" });
       }
 
-      // ถ้าผู้ใช้มี userType เป็น 'customer' หรือ 'astrologer' แสดงข้อมูลตาม userType
+      const formattedUser = {
+        ...user.toObject(),
+        birthdate: moment(user.birthdate).format('DD/MM/YYYY'),
+        createdAt: moment(user.createdAt).format('DD/MM/YYYY HH:MM:SS'),
+      };
+
       if (user.userType === "customer") {
-        return res.status(200).json({ customer: user });
+        return res.status(200).json({ customer: formattedUser });
       } else if (user.userType === "astrologer") {
-        return res.status(200).json({ astrologer: user });
+        return res.status(200).json({ astrologer: formattedUser });
       } else {
         return res.status(404).json({ message: "User type not recognized" });
       }
