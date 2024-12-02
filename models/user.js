@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import moment from "moment";
+import moment from "moment-timezone";
 
 const userSchema = new mongoose.Schema({
   lineId: String,
@@ -13,18 +13,6 @@ const userSchema = new mongoose.Schema({
   selfDescription: String,
   branch: String,
   createdAt: Date,
-});
-
-userSchema.set("toJSON", {
-  transform: (doc, ret) => {
-    if (ret.birthdate) {
-      ret.birthdate = moment(ret.birthdate).format("DD-MM-YYYY");
-    }
-    if (ret.createdAt) {
-      ret.createdAt = moment(ret.createdAt).format("DD-MM-YYYY HH:mm:ss");
-    }
-    return ret;
-  },
 });
 
 export default mongoose.models.User || mongoose.model("User", userSchema);
