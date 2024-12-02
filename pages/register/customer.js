@@ -75,7 +75,7 @@ const CustomerRegistration = () => {
       alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
 
       // เรียก API เพื่อเชื่อมโยง Rich Menu
-      const linkRichMenuResponse = await fetch("/api/linkRichMenu", {
+      const linkRichMenuResponse = await fetch("/api/linkRichMenuAPI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lineId }), // ส่ง Line ID ไปเชื่อมโยง Rich Menu
