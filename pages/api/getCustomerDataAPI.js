@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       const formattedCustomer = {
         ...customer.toObject(),
         birthdate: moment(customer.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(customer.createdAt).format('DD/MM/YYYY HH:MM:SS'),
+        createdAt: moment(customer.createdAt).format('DD/MM/YYYY HH:mm:ss'),
       };
 
       res.status(200).json({ customer: formattedCustomer });

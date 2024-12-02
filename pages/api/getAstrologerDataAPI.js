@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       const formattedAstrologer = {
         ...astrologer.toObject(),
         birthdate: moment(astrologer.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(astrologer.createdAt).format('DD/MM/YYYY HH:MM:SS'),
+        createdAt: moment(astrologer.createdAt).format('DD/MM/YYYY HH:mm:ss'),
       };
 
       res.status(200).json({ astrologer: formattedAstrologer });
