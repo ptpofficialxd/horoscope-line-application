@@ -1,7 +1,7 @@
 import { connectToDatabase } from "../../lib/mongodb";
 import User from '../../models/user';
 import { getCookie } from "cookies-next";
-import moment from "moment";
+import moment from "moment-timezone";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {

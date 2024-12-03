@@ -183,7 +183,7 @@ const AstrologerRegistration = () => {
             <div className="form-group mb-3">
               <textarea
                 className="form-control"
-                placeholder="รายละเอียดเกี่ยวกับตัวเอง"
+                placeholder="ประวัติ/รายละเอียดเกี่ยวกับตัวเอง"
                 value={formData.selfDescription}
                 onChange={(e) =>
                   setFormData({ ...formData, selfDescription: e.target.value })
