@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       const formattedUser = {
         ...user.toObject(),
         birthdate: moment(user.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(user.createdAt).format('DD/MM/YYYY HH:mm:ss'),
+        createdAt: moment(user.createdAt).tz('Asia/Bangkok').format('DD/MM/YYYY HH:mm:ss'),
       };
 
       if (user.userType === "customer") {
