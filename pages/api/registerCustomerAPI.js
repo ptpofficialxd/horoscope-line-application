@@ -1,40 +1,43 @@
-import { connectToDatabase } from '../../lib/mongodb';
-import User from '../../models/user';
-import { setCookie } from 'cookies-next';
+import { connectToDatabase } from "../../lib/mongodb";
+import User from "../../models/user";
+import { setCookie } from "cookies-next";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { lineId, firstName, lastName, phone, birthdate, age, gender } = req.body;
+    const { lineId, firstName, lastName, phone, gender, birthdate, age } =
+      req.body;
 
     try {
       await connectToDatabase();
 
       const existingUser = await User.findOne({ lineId });
       if (existingUser) {
-        return res.status(400).json({ message: "LineID นี้ทำการสมัครสมาชิกไว้อยู่แล้ว!" });
+        return res
+          .status(400)
+          .json({ message: "LineID นี้ทำการสมัครสมาชิกไว้อยู่แล้ว!" });
       }
 
       const newUser = new User({
         lineId,
+        userType: "customer",
         firstName,
         lastName,
         phone,
+        gender,
         birthdate,
         age,
-        gender,
-        userType: "customer",
         createdAt: new Date(),
       });
 
       await newUser.save();
 
-      setCookie('lineId', lineId, {
+      setCookie("lineId", lineId, {
         req,
         res,
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 7,
-        path: '/',
+        path: "/",
       });
 
       res.status(201).json({ message: "Customer registered successfully" });
