@@ -1,6 +1,7 @@
 /* pages/profile.js */
 
 import React, { useEffect, useState } from "react";
+import Image from 'next/image';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null); // สำหรับเก็บข้อมูลผู้ใช้
@@ -22,7 +23,6 @@ const Profile = () => {
         setLoading(false); // เมื่อโหลดเสร็จ
       }
     };
-
     fetchUserData(); // เรียกใช้งานฟังก์ชันเมื่อโหลดคอมโพเนนต์
   }, []); // [] หมายความว่าใช้ effect แค่ครั้งเดียวหลังจากคอมโพเนนต์โหลด
 
@@ -59,11 +59,13 @@ const Profile = () => {
             <div>
               <h2 className="text-center">โปรไฟล์สมาชิก</h2>
               <p>
-                <strong>ชื่อ:</strong> {userData.customer.firstName}{" "}
-                {userData.customer.lastName}
+                <strong>ชื่อ:</strong> {userData.customer.firstName} {userData.customer.lastName}
               </p>
               <p>
                 <strong>เบอร์โทรศัพท์:</strong> {userData.customer.phone}
+              </p>
+              <p>
+                <strong>เพศ:</strong> {userData.customer.gender}
               </p>
               <p>
                 <strong>วันเกิด:</strong> {userData.customer.birthdate}
@@ -72,24 +74,7 @@ const Profile = () => {
                 <strong>อายุ:</strong> {userData.customer.age}
               </p>
               <p>
-                <strong>เพศ:</strong>{" "}
-                {
-                  // แปลงค่าของ gender เป็นภาษาไทย
-                  userData.customer.gender === "male"
-                    ? "ชาย"
-                    : userData.customer.gender === "female"
-                    ? "หญิง"
-                    : userData.customer.gender === "others"
-                    ? "อื่นๆ"
-                    : ""
-                }
-              </p>
-              <p>
-                <strong>ประเภทผู้ใช้งาน:</strong>{" "}
-                {
-                  // แปลงค่าของ userType เป็นภาษาไทย
-                  userData.customer.userType === "customer" ? "ลูกค้า" : ""
-                }
+                <strong>ประเภทผู้ใช้งาน:</strong> {userData.customer.userType}
               </p>
               <p>
                 <strong>วันที่สร้างบัญชี:</strong> {userData.customer.createdAt}
@@ -99,11 +84,13 @@ const Profile = () => {
             <div>
               <h2 className="text-center">โปรไฟล์สมาชิก</h2>
               <p>
-                <strong>ชื่อ:</strong> {userData.astrologer.firstName}{" "}
-                {userData.astrologer.lastName}
+                <strong>ชื่อ:</strong> {userData.astrologer.firstName} {userData.astrologer.lastName}
               </p>
               <p>
                 <strong>เบอร์โทรศัพท์:</strong> {userData.astrologer.phone}
+              </p>
+              <p>
+                <strong>เพศ:</strong> {userData.astrologer.gender}
               </p>
               <p>
                 <strong>วันเกิด:</strong> {userData.astrologer.birthdate}
@@ -112,38 +99,19 @@ const Profile = () => {
                 <strong>อายุ:</strong> {userData.astrologer.age}
               </p>
               <p>
-                <strong>เพศ:</strong>{" "}
-                {
-                  // แปลงค่าของ gender เป็นภาษาไทย
-                  userData.astrologer.gender === "male"
-                    ? "ชาย"
-                    : userData.astrologer.gender === "female"
-                    ? "หญิง"
-                    : userData.astrologer.gender === "others"
-                    ? "อื่นๆ"
-                    : ""
-                }
+                <strong>ประเภทผู้ใช้งาน:</strong> {userData.astrologer.userType}
               </p>
               <p>
-                <strong>ประเภทผู้ใช้งาน:</strong>{" "}
-                {
-                  // แปลงค่าของ userType เป็นภาษาไทย
-                  userData.astrologer.userType === "astrologer"
-                    ? "หมอดูดวง"
-                    : ""
-                }
+                <strong>รายละเอียดเกี่ยวกับตัวเอง:</strong> {userData.astrologer.selfDescription}
               </p>
               <p>
-                <strong>รายละเอียดเกี่ยวกับตัวเอง:</strong>{" "}
-                {userData.astrologer.selfDescription}
+                <strong>สาขาวิชาที่เชี่ยวชาญ:</strong> {userData.astrologer.branch}
               </p>
               <p>
-                <strong>สาขาวิชาที่เชี่ยวชาญ:</strong>{" "}
-                {userData.astrologer.branch}
+                <strong>ช่วงเวลาที่ให้บริการ:</strong> {userData.astrologer.serviceHours.start} - {userData.astrologer.serviceHours.end}
               </p>
               <p>
-                <strong>วันที่สร้างบัญชี:</strong>{" "}
-                {userData.astrologer.createdAt}
+                <strong>วันที่สร้างบัญชี:</strong> {userData.astrologer.createdAt}
               </p>
             </div>
           ) : (
