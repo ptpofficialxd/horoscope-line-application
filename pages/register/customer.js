@@ -43,70 +43,74 @@ const CustomerRegistration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const nameRegex = /^[A-Za-zก-ฮะ-์]+$/; // ชื่อและนามสกุลต้องเป็นตัวอักษรทั้งภาษาอังกฤษและไทย
     if (!nameRegex.test(formData.firstName)) {
       alert("กรุณากรอกชื่อเป็นตัวอักษรเท่านั้น!");
       return; // ถ้าชื่อไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     if (!nameRegex.test(formData.lastName)) {
       alert("กรุณากรอกนามสกุลเป็นตัวอักษรเท่านั้น!");
       return; // ถ้านามสกุลไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     // เช็คว่าเบอร์โทรศัพท์มีตัวเลขและมีความยาว 10 ตัว
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(formData.phone)) {
       alert("กรุณากรอกเบอร์โทรศัพท์ที่เป็นตัวเลข 10 หลัก!");
       return; // ถ้าเบอร์ไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     // เช็คว่าเลือกเพศหรือยัง
     if (!formData.gender) {
       alert("กรุณาเลือกเพศของคุณ!");
       return;
     }
-  
+
     // เช็คว่าเลือกวันเกิดหรือยัง
     if (!formData.birthdate) {
       alert("กรุณาเลือกวันเกิดของคุณ!");
       return; // ถ้ายังไม่เลือกวันเกิดจะไม่ส่งข้อมูลไปที่ API
     }
-  
-    try {
-      // คำนวณอายุในแบบอะซิงโครนัส
-      const age = await new Promise((resolve) => {
-        setTimeout(() => resolve(calculateAge(formData.birthdate)), 0); // Deferring age calculation asynchronously
-      });
-  
-      setFormData((prevData) => ({ ...prevData, age }));
-  
-      const registerResponse = await fetch("/api/registerCustomerAPI", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, lineId, age }),
-      });
-  
-      if (!registerResponse.ok) {
-        throw new Error("ไม่สามารถสมัครสมาชิกได้");
-      }
-  
+
+    // คำนวณอายุ
+    const age = calculateAge(formData.birthdate);
+    setFormData((prevData) => ({ ...prevData, age }));
+
+    // ส่งข้อมูลไปที่ API
+    const response = await fetch("/api/registerCustomerAPI", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...formData, lineId, age }),
+    });
+
+    if (response.ok) {
+      alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
+
+      // เรียก API เพื่อเชื่อมโยง Rich Menu
       const linkRichMenuResponse = await fetch("/api/linkRichMenuAPI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lineId }),
+        body: JSON.stringify({ lineId }), // ส่ง Line ID ไปเชื่อมโยง Rich Menu
       });
-  
-      if (!linkRichMenuResponse.ok) {
+
+      if (linkRichMenuResponse.ok) {
+        console.log("เชื่อมโยง Rich Menu สำเร็จ");
+      } else {
         const errorData = await linkRichMenuResponse.json();
-        console.error("เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:", errorData.message);
+        console.error(
+          "เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:",
+          errorData.message
+        );
       }
-  
-      alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
-      router.push("/profile"); // Go to profile page
-    } catch (error) {
-      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+
+      router.push("/profile"); // ไปหน้า profile
+    } else {
+      const errorData = await response.json();
+      alert(
+        `เกิดข้อผิดพลาด: ${errorData.message || "ไม่สามารถสมัครสมาชิกได้"}`
+      );
     }
   };
 

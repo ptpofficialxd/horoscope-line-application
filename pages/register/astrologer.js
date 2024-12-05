@@ -40,6 +40,18 @@ const AstrologerRegistration = () => {
     });
   };
 
+  // คำนวณอายุ
+  const calculateAge = (birthdate) => {
+    const birthDate = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth() - birthDate.getMonth();
+    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -90,23 +102,8 @@ const AstrologerRegistration = () => {
       return;
     }
 
-    // คำนวณอายุ
-    const calculateAge = (birthdate) => {
-      const birthDate = new Date(birthdate);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const month = today.getMonth() - birthDate.getMonth();
-      if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      return age;
-    };
-
     const age = calculateAge(formData.birthdate);
-    setFormData((prevData) => ({
-      ...prevData,
-      age, // เพิ่ม age ที่คำนวณแล้ว
-    }));
+    setFormData((prevData) => ({ ...prevData, age, }));
 
     // ส่งข้อมูลไปที่ API
     const response = await fetch("/api/registerAstrologerAPI", {
