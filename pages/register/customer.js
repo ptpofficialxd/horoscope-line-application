@@ -17,7 +17,7 @@ const CustomerRegistration = () => {
     phone: "",
     gender: "",
     birthdate: "",
-    age: "", // จะคำนวณอายุจากวันเกิด
+    age: "",
   });
 
   dayjs.extend(customParseFormat);
