@@ -30,6 +30,17 @@ const CustomerRegistration = () => {
     });
   };
 
+  const calculateAge = (birthdate) => {
+    const birthDate = new Date(birthdate);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth() - birthDate.getMonth();
+    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,54 +74,37 @@ const CustomerRegistration = () => {
       return; // ถ้ายังไม่เลือกวันเกิดจะไม่ส่งข้อมูลไปที่ API
     }
 
-    const calculateAge = (birthdate) => {
-      const birthDate = new Date(birthdate);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const month = today.getMonth() - birthDate.getMonth();
-      if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      return age;
-    };
-
-    // คำนวณอายุ
+    // คำนวณอายุในแบบอะซิงโครนัส
     const age = calculateAge(formData.birthdate);
     setFormData((prevData) => ({ ...prevData, age }));
 
-    // ส่งข้อมูลไปที่ API
-    const response = await fetch("/api/registerCustomerAPI", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...formData, lineId, age }),
-    });
+    try {
+      const registerResponse = await fetch("/api/registerCustomerAPI", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, lineId, age }),
+      });
 
-    if (response.ok) {
-      alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
+      if (!registerResponse.ok) {
+        throw new Error("ไม่สามารถสมัครสมาชิกได้");
+      }
 
-      // เรียก API เพื่อเชื่อมโยง Rich Menu
       const linkRichMenuResponse = await fetch("/api/linkRichMenuAPI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lineId }), // ส่ง Line ID ไปเชื่อมโยง Rich Menu
+        body: JSON.stringify({ lineId }),
       });
 
-      if (linkRichMenuResponse.ok) {
-        console.log("เชื่อมโยง Rich Menu สำเร็จ");
-      } else {
+      if (!linkRichMenuResponse.ok) {
         const errorData = await linkRichMenuResponse.json();
-        console.error(
-          "เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:",
-          errorData.message
-        );
+        console.error("เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:", errorData.message);
       }
 
-      router.push("/profile"); // ไปหน้า profile
-    } else {
-      const errorData = await response.json();
-      alert(
-        `เกิดข้อผิดพลาด: ${errorData.message || "ไม่สามารถสมัครสมาชิกได้"}`
-      );
+      alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
+      router.push("/profile"); // Go to profile page
+
+    } catch (error) {
+      alert(`เกิดข้อผิดพลาด: ${error.message}`);
     }
   };
 
