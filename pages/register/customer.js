@@ -77,7 +77,7 @@ const CustomerRegistration = () => {
     try {
       // คำนวณอายุในแบบอะซิงโครนัส
       const age = await new Promise((resolve) => {
-        resolve(calculateAge(formData.birthdate)); // Deferring the calculation to avoid blocking UI
+        setTimeout(() => resolve(calculateAge(formData.birthdate)), 0); // Deferring age calculation asynchronously
       });
   
       setFormData((prevData) => ({ ...prevData, age }));
