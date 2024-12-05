@@ -2,18 +2,11 @@
 
 import { useRouter } from "next/router";
 import { useState } from "react";
-
-// ฟังก์ชันคำนวณอายุจากวันเกิด
-const calculateAge = (birthdate) => {
-  const birthDate = new Date(birthdate);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const month = today.getMonth() - birthDate.getMonth();
-  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age;
-};
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import "dayjs/locale/th";
 
 const CustomerRegistration = () => {
   const router = useRouter();
@@ -22,10 +15,20 @@ const CustomerRegistration = () => {
     firstName: "",
     lastName: "",
     phone: "",
-    birthdate: "",
     gender: "",
+    birthdate: "",
     age: "", // จะคำนวณอายุจากวันเกิด
   });
+
+  dayjs.extend(customParseFormat);
+  dayjs.locale("th");
+
+  const handleSelectDate = (date) => {
+    setFormData({
+      ...formData,
+      birthdate: date ? date.format("YYYY-MM-DD") : "",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,17 +51,28 @@ const CustomerRegistration = () => {
       return; // ถ้าเบอร์ไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
 
+    // เช็คว่าเลือกเพศหรือยัง
+    if (!formData.gender) {
+      alert("กรุณาเลือกเพศของคุณ!");
+      return;
+    }
+
     // เช็คว่าเลือกวันเกิดหรือยัง
     if (!formData.birthdate) {
       alert("กรุณาเลือกวันเกิดของคุณ!");
       return; // ถ้ายังไม่เลือกวันเกิดจะไม่ส่งข้อมูลไปที่ API
     }
 
-    // เช็คว่าเลือกเพศหรือยัง
-    if (!formData.gender) {
-      alert("กรุณาเลือกเพศของคุณ!");
-      return;
-    }
+    const calculateAge = (birthdate) => {
+      const birthDate = new Date(birthdate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const month = today.getMonth() - birthDate.getMonth();
+      if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    };
 
     // คำนวณอายุ
     const age = calculateAge(formData.birthdate);
@@ -140,16 +154,6 @@ const CustomerRegistration = () => {
               />
             </div>
             <div className="form-group mb-3">
-              <input
-                type="date"
-                className="form-control"
-                value={formData.birthdate}
-                onChange={(e) =>
-                  setFormData({ ...formData, birthdate: e.target.value })
-                }
-              />
-            </div>
-            <div className="form-group mb-4">
               <select
                 className="form-control"
                 value={formData.gender}
@@ -164,6 +168,29 @@ const CustomerRegistration = () => {
                 <option value="female">หญิง</option>
                 <option value="others">อื่นๆ</option>
               </select>
+            </div>
+            <div className="form-group mb-3">
+              <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+                adapterLocale="th"
+              >
+                <DatePicker
+                  label="วันเกิด"
+                  value={formData.birthdate ? dayjs(formData.birthdate) : null}
+                  onChange={handleSelectDate}
+                  format="DD/MM/YYYY"
+                  views={["year", "month", "day"]}
+                  yearsOrder="desc"
+                  maxDate={dayjs()}
+                  slotProps={{
+                    textField: {
+                      inputProps: {
+                        readOnly: true,
+                      },
+                    },
+                  }}
+                />
+              </LocalizationProvider>
             </div>
             <div className="d-grid">
               <button type="submit" className="btn btn-primary">

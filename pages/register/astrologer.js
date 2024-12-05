@@ -1,19 +1,10 @@
-/* pages/register/astrologer.js */
-
 import { useRouter } from "next/router";
 import { useState } from "react";
-
-// ฟังก์ชันคำนวณอายุจากวันเกิด
-const calculateAge = (birthdate) => {
-  const birthDate = new Date(birthdate);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const month = today.getMonth() - birthDate.getMonth();
-  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age;
-};
+import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import "dayjs/locale/th";
 
 const AstrologerRegistration = () => {
   const router = useRouter();
@@ -22,27 +13,47 @@ const AstrologerRegistration = () => {
     firstName: "",
     lastName: "",
     phone: "",
-    birthdate: "",
     gender: "",
+    birthdate: "",
+    age: "",
     selfDescription: "", // รายละเอียดเกี่ยวกับตัวเอง
-    branch: "", // สาขาที่เชี่ยวชาญ
-    age: "", // คำนวณอายุจากวันเกิด
+    branch: "", // สาขาที่เชี่ยวชาญ // คำนวณอายุจากวันเกิด
+    serviceHours: { start: "", end: "" },
+    profilePicture: "",
+    certificate: "",
   });
+
+  dayjs.extend(customParseFormat);
+  dayjs.locale("th");
+
+  const handleSelectDate = (date) => {
+    setFormData({
+      ...formData,
+      birthdate: date ? date.format("YYYY-MM-DD") : "",
+    });
+  };
+
+  const handleSelectTime = (time, type) => {
+    setFormData({
+      ...formData,
+      serviceHours: { ...formData.serviceHours, [type]: time },
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const nameRegex = /^[A-Za-zก-ฮะ-์]+$/; // ชื่อและนามสกุลต้องเป็นตัวอักษรทั้งภาษาอังกฤษและไทย
     if (!nameRegex.test(formData.firstName)) {
       alert("กรุณากรอกชื่อเป็นตัวอักษรเท่านั้น!");
       return; // ถ้าชื่อไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     if (!nameRegex.test(formData.lastName)) {
       alert("กรุณากรอกนามสกุลเป็นตัวอักษรเท่านั้น!");
       return; // ถ้านามสกุลไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     // เช็คว่าเบอร์โทรศัพท์มีตัวเลขและมีความยาว 10 ตัว
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(formData.phone)) {
@@ -50,46 +61,60 @@ const AstrologerRegistration = () => {
       return; // ถ้าเบอร์ไม่ถูกต้องจะไม่ส่งข้อมูลไปที่ API
     }
 
-    // เช็คว่าเลือกวันเกิดหรือยัง
-    if (!formData.birthdate) {
-      alert("กรุณาเลือกวันเกิดของคุณ!");
-      return; // ถ้ายังไม่เลือกวันเกิดจะไม่ส่งข้อมูลไปที่ API
-    }
-  
     // เช็คว่าเลือกเพศหรือยัง
     if (!formData.gender) {
       alert("กรุณาเลือกเพศของคุณ!");
       return;
     }
-  
+
+    // เช็คว่าเลือกวันเกิดหรือยัง
+    if (!formData.birthdate) {
+      alert("กรุณาเลือกวันเกิดของคุณ!");
+      return; // ถ้ายังไม่เลือกวันเกิดจะไม่ส่งข้อมูลไปที่ API
+    }
+
     // ตรวจสอบว่า "รายละเอียดเกี่ยวกับตัวเอง" ถูกกรอกหรือยัง
     if (!formData.selfDescription) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน!");
       return; // ถ้าไม่กรอกจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
     // ตรวจสอบว่า "สาขาวิชาที่เชี่ยวชาญ" ถูกกรอกหรือยัง
     if (!formData.branch) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน!");
       return; // ถ้าไม่กรอกจะไม่ส่งข้อมูลไปที่ API
     }
-  
+
+    if (!formData.serviceHours.start || !formData.serviceHours.end) {
+      alert("กรุณาเลือกเวลาที่ให้บริการ!");
+      return;
+    }
+
     // คำนวณอายุ
+    const calculateAge = (birthdate) => {
+      const birthDate = new Date(birthdate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const month = today.getMonth() - birthDate.getMonth();
+      if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    };
+
     const age = calculateAge(formData.birthdate);
-  
-    // อัปเดตค่า age ใน formData ก่อนส่งไปที่ API
     setFormData((prevData) => ({
       ...prevData,
       age, // เพิ่ม age ที่คำนวณแล้ว
     }));
-  
+
     // ส่งข้อมูลไปที่ API
     const response = await fetch("/api/registerAstrologerAPI", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...formData, lineId, age }), // ส่ง age ที่คำนวณแล้วไปด้วย
     });
-  
+
     if (response.ok) {
       alert("สมัครสมาชิกสำเร็จ \nยินดีต้อนรับเข้าสู่แอปพลิเคชั่นของเรา!");
 
@@ -104,15 +129,20 @@ const AstrologerRegistration = () => {
         console.log("เชื่อมโยง Rich Menu สำเร็จ");
       } else {
         const errorData = await linkRichMenuResponse.json();
-        console.error("เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:", errorData.message);
+        console.error(
+          "เกิดข้อผิดพลาดในการเชื่อมโยง Rich Menu:",
+          errorData.message
+        );
       }
 
       router.push("/profile"); // ไปหน้า profile
     } else {
       const errorData = await response.json();
-      alert(`เกิดข้อผิดพลาด: ${errorData.message || "ไม่สามารถสมัครสมาชิกได้"}`);
+      alert(
+        `เกิดข้อผิดพลาด: ${errorData.message || "ไม่สามารถสมัครสมาชิกได้"}`
+      );
     }
-  };  
+  };
 
   return (
     <div className="register-container">
@@ -154,16 +184,6 @@ const AstrologerRegistration = () => {
               />
             </div>
             <div className="form-group mb-3">
-              <input
-                type="date"
-                className="form-control"
-                value={formData.birthdate}
-                onChange={(e) =>
-                  setFormData({ ...formData, birthdate: e.target.value })
-                }
-              />
-            </div>
-            <div className="form-group mb-4">
               <select
                 className="form-control"
                 value={formData.gender}
@@ -179,7 +199,29 @@ const AstrologerRegistration = () => {
                 <option value="others">อื่นๆ</option>
               </select>
             </div>
-            {/* รายละเอียดเกี่ยวกับตัวเอง */}
+            <div className="form-group mb-3">
+              <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+                adapterLocale="th"
+              >
+                <DatePicker
+                  label="วันเกิด"
+                  value={formData.birthdate ? dayjs(formData.birthdate) : null}
+                  onChange={handleSelectDate}
+                  format="DD/MM/YYYY"
+                  views={["year", "month", "day"]}
+                  yearsOrder="desc"
+                  maxDate={dayjs()}
+                  slotProps={{
+                    textField: {
+                      inputProps: {
+                        readOnly: true,
+                      },
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
             <div className="form-group mb-3">
               <textarea
                 className="form-control"
@@ -190,8 +232,6 @@ const AstrologerRegistration = () => {
                 }
               />
             </div>
-
-            {/* สาขาที่เชี่ยวชาญ */}
             <div className="form-group mb-3">
               <textarea
                 className="form-control"
@@ -201,6 +241,61 @@ const AstrologerRegistration = () => {
                   setFormData({ ...formData, branch: e.target.value })
                 }
               />
+            </div>
+            <div className="form-group mb-3 d-flex align-items-center">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="เวลาให้บริการ"
+                  value={
+                    formData.serviceHours.start
+                      ? dayjs(formData.serviceHours.start)
+                      : null
+                  }
+                  onChange={(time) => handleSelectTime(time, "start")}
+                  slotProps={{
+                    textField: {
+                      inputProps: {
+                        readOnly: true,
+                      },
+                    },
+                  }}
+                  ampm={false}
+                  minutesStep={5}
+                />
+              </LocalizationProvider>
+              <span style={{ margin: "0 10px" }}>–</span>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="เวลาให้บริการ"
+                  value={
+                    formData.serviceHours.end
+                      ? dayjs(formData.serviceHours.end)
+                      : null
+                  }
+                  onChange={(time) => handleSelectTime(time, "end")}
+                  slotProps={{
+                    textField: {
+                      inputProps: {
+                        readOnly: true,
+                      },
+                    },
+                  }}
+                  ampm={false}
+                  minutesStep={5}
+                />
+              </LocalizationProvider>
+              <button
+                type="button"
+                className="btn btn-primary ms-3"
+                onClick={() =>
+                  setFormData({
+                    ...formData,
+                    serviceHours: { start: "", end: "" },
+                  })
+                }
+              >
+                รีเซ็ต
+              </button>
             </div>
             <div className="d-grid">
               <button type="submit" className="btn btn-primary">
