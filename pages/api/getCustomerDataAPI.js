@@ -21,9 +21,20 @@ export default async function handler(req, res) {
       }
 
       const formattedCustomer = {
-        ...customer.toObject(),
-        birthdate: moment(customer.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(customer.createdAt).format('DD/MM/YYYY HH:mm:ss'),
+        _id: customer._id,
+        lineId: customer.lineId,
+        userType: 
+          customer.userType === "customer" ? "ลูกค้า" : "",
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        phone: customer.phone,
+        gender: 
+          customer.gender === "male" ? "ชาย" : 
+          customer.gender === "female" ? "หญิง" : 
+          customer.gender === "others" ? "อื่นๆ" : "",  // แปลงค่า gender เป็นภาษาไทย
+        birthdate: moment(customer.birthdate).format("DD/MM/YYYY"),
+        age: customer.age,
+        createdAt: moment(customer.createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY @HH:mm:ss"),
       };
 
       res.status(200).json({ customer: formattedCustomer });

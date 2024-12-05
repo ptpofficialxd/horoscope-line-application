@@ -21,9 +21,26 @@ export default async function handler(req, res) {
       }
 
       const formattedAstrologer = {
-        ...astrologer.toObject(),
-        birthdate: moment(astrologer.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(astrologer.createdAt).format('DD/MM/YYYY HH:mm:ss'),
+        _id: astrologer._id,
+        lineId: astrologer.lineId,
+        userType: 
+          astrologer.userType === "astrologer" ? "หมอดูดวง" : "",
+        firstName: astrologer.firstName,
+        lastName: astrologer.lastName,
+        phone: astrologer.phone,
+        gender: 
+          astrologer.gender === "male" ? "ชาย" : 
+          astrologer.gender === "female" ? "หญิง" : 
+          astrologer.gender === "others" ? "อื่นๆ" : "",  // แปลงค่า gender เป็นภาษาไทย
+        birthdate: moment(astrologer.birthdate).format("DD/MM/YYYY"),
+        age: astrologer.age,
+        selfDescription: astrologer.selfDescription,
+        branch: astrologer.branch,
+        serviceHours: astrologer.serviceHours && {
+          start: moment(astrologer.serviceHours.start).tz('Asia/Bangkok').format('HH:mm'),
+          end: moment(astrologer.serviceHours.end).tz('Asia/Bangkok').format('HH:mm'),
+        },
+        createdAt: moment(astrologer.createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY @HH:mm:ss"),
       };
 
       res.status(200).json({ astrologer: formattedAstrologer });

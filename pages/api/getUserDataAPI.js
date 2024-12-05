@@ -1,11 +1,11 @@
 import { connectToDatabase } from "../../lib/mongodb";
-import User from '../../models/user';
+import User from "../../models/user";
 import { getCookie } from "cookies-next";
 import moment from "moment-timezone";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    const lineId = getCookie('lineId', { req, res });
+    const lineId = getCookie("lineId", { req, res });
 
     if (!lineId) {
       return res.status(400).json({ message: "lineId cookie is required" });
@@ -21,9 +21,27 @@ export default async function handler(req, res) {
       }
 
       const formattedUser = {
-        ...user.toObject(),
-        birthdate: moment(user.birthdate).format('DD/MM/YYYY'),
-        createdAt: moment(user.createdAt).tz('Asia/Bangkok').format('DD/MM/YYYY HH:mm:ss'),
+        _id: user._id,
+        lineId: user.lineId,
+        userType: 
+          user.userType === "customer" ? "ลูกค้า" :
+          user.userType === "astrologer" ? "หมอดูดวง" : "",
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        gender: 
+          user.gender === "male" ? "ชาย" : 
+          user.gender === "female" ? "หญิง" : 
+          user.gender === "others" ? "อื่นๆ" : "",  // แปลงค่า gender เป็นภาษาไทย
+        birthdate: moment(user.birthdate).format("DD/MM/YYYY"),
+        age: user.age,
+        selfDescription: user.selfDescription,
+        branch: user.branch,
+        serviceHours: user.serviceHours && {
+          start: moment(user.serviceHours.start).tz('Asia/Bangkok').format('HH:mm'),
+          end: moment(user.serviceHours.end).tz('Asia/Bangkok').format('HH:mm'),
+        },
+        createdAt: moment(user.createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY @HH:mm:ss"),
       };
 
       if (user.userType === "customer") {
