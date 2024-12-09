@@ -35,7 +35,14 @@ export default async function handler(req, res) {
         birthdate: moment(astrologer.birthdate).format("DD/MM/YYYY"),
         age: astrologer.age,
         selfDescription: astrologer.selfDescription,
-        branch: astrologer.branch,
+        branch: astrologer.branch.map((branch) =>
+          branch === "astrology" ? "โหราศาสตร์" :
+          branch === "numerology" ? "เลขศาสตร์" :
+          branch === "tarot" ? "ทำนายไพ่" :
+          branch === "palmistry" ? "ลายมือ" :
+          branch === "zodiac" ? "ราศี" :
+          branch === "fengshui" ? "ฮวงจุ้ย" : ""
+        ),
         serviceHours: astrologer.serviceHours && {
           start: moment(astrologer.serviceHours.start).tz('Asia/Bangkok').format('HH:mm'),
           end: moment(astrologer.serviceHours.end).tz('Asia/Bangkok').format('HH:mm'),

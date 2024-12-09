@@ -36,12 +36,19 @@ export default async function handler(req, res) {
         birthdate: moment(user.birthdate).format("DD/MM/YYYY"),
         age: user.age,
         selfDescription: user.selfDescription,
-        branch: user.branch,
+        branch: user.branch ? user.branch.map((branch) =>
+          branch === "astrology" ? "โหราศาสตร์" :
+          branch === "numerology" ? "เลขศาสตร์" :
+          branch === "tarot" ? "ทำนายไพ่" :
+          branch === "palmistry" ? "ลายมือ" :
+          branch === "zodiac" ? "ราศี" :
+          branch === "fengshui" ? "ฮวงจุ้ย" : ""
+        ) : [],
         serviceHours: user.serviceHours && {
           start: moment(user.serviceHours.start).tz('Asia/Bangkok').format('HH:mm'),
           end: moment(user.serviceHours.end).tz('Asia/Bangkok').format('HH:mm'),
         },
-        createdAt: moment(user.createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY @HH:mm:ss"),
+        createdAt: moment(user.createdAt).tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm:ss"),
       };
 
       if (user.userType === "customer") {
