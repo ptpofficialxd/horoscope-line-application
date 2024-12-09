@@ -8,6 +8,14 @@
   background-color: #f8f9fa;
 }
 
+.booking-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
 .card {
   width: 100%;
   max-width: 500px;
@@ -55,4 +63,15 @@ h2 {
 
 .MuiFormControl-root {
   width: 100%;
+}
+
+.react-select-container {
+  z-index: 1000;
+}
+
+.react-select__multi-value {
+  background-color: #e0e0e0 !important;
+  border-radius: 15px !important;
+  padding: 2px 10px !important;
+  margin: 5px !important;
 }
