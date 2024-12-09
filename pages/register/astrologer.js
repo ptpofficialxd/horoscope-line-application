@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { LocalizationProvider, DatePicker, TimePicker, } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { branchOptions } from "../../models/branchOptions";
+import Select from "react-select";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/th";
@@ -17,7 +19,7 @@ const AstrologerRegistration = () => {
     birthdate: "",
     age: "",
     selfDescription: "", // รายละเอียดเกี่ยวกับตัวเอง
-    branch: "", // สาขาที่เชี่ยวชาญ // คำนวณอายุจากวันเกิด
+    branch: [], // สาขาที่เชี่ยวชาญ // คำนวณอายุจากวันเกิด
     serviceHours: { start: "", end: "" },
     profilePicture: "",
     certificate: "",
@@ -37,6 +39,13 @@ const AstrologerRegistration = () => {
     setFormData({
       ...formData,
       serviceHours: { ...formData.serviceHours, [type]: time },
+    });
+  };
+
+  const handleSelectBranch = (selectedOptions) => {
+    setFormData({
+      ...formData,
+      branch: selectedOptions.map((option) => option.value),
     });
   };
 
@@ -102,8 +111,22 @@ const AstrologerRegistration = () => {
       return;
     }
 
+    if (
+      dayjs(formData.serviceHours.end).isBefore(
+        dayjs(formData.serviceHours.start)
+      ) ||
+      dayjs(formData.serviceHours.end).isSame(
+        dayjs(formData.serviceHours.start)
+      )
+    ) {
+      alert(
+        "ไม่สามารถตั้งค่าเวลาสิ้นสุดให้บริการน้อยกว่าหรือเท่ากับเวลาเริ่มต้นได้!"
+      );
+      return;
+    }
+
     const age = calculateAge(formData.birthdate);
-    setFormData((prevData) => ({ ...prevData, age, }));
+    setFormData((prevData) => ({ ...prevData, age }));
 
     // ส่งข้อมูลไปที่ API
     const response = await fetch("/api/registerAstrologerAPI", {
@@ -230,13 +253,16 @@ const AstrologerRegistration = () => {
               />
             </div>
             <div className="form-group mb-3">
-              <textarea
-                className="form-control"
-                placeholder="สาขาวิชาที่เชี่ยวชาญ"
-                value={formData.branch}
-                onChange={(e) =>
-                  setFormData({ ...formData, branch: e.target.value })
-                }
+              <Select
+              className="react-select-container"
+                isMulti
+                options={branchOptions}
+                value={branchOptions.filter((option) =>
+                  formData.branch.includes(option.value)
+                )}
+                onChange={handleSelectBranch}
+                closeMenuOnSelect={false}
+                placeholder="เลือกสาขาวิชาที่เชี่ยวชาญ"
               />
             </div>
             <div className="form-group mb-3 d-flex align-items-center">
