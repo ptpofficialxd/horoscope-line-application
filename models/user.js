@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema({
   birthdate: Date,
   age: Number,
   selfDescription: String,
-  branch: String,
+  branch: { 
+    type: [String],
+    default: undefined
+  },
   serviceHours: {
     start: String,
     end: String,
