@@ -105,7 +105,7 @@ const Profile = () => {
                 <strong>รายละเอียดเกี่ยวกับตัวเอง:</strong> {userData.astrologer.selfDescription}
               </p>
               <p>
-                <strong>สาขาวิชาที่เชี่ยวชาญ:</strong> {userData.astrologer.branch}
+                <strong>สาขาวิชาที่เชี่ยวชาญ:</strong> {userData.astrologer.branch.join(", ")}
               </p>
               <p>
                 <strong>ช่วงเวลาที่ให้บริการ:</strong> {userData.astrologer.serviceHours.start} - {userData.astrologer.serviceHours.end}
